@@ -1,0 +1,32 @@
+﻿@model IEnumerable<EmployeeSchedulerAssignment.Models.Employee>
+@*
+    @model EmployeeSchedulerAssignment.ViewModels.EmployeeScheduleViewModel
+    *@
+@{
+    ViewBag.Title = "Employees";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Employee Scheduler</h2>
+@if (!Model.Any())
+{
+    <p>We don't have any employees yet.</p>
+}
+else
+{
+    <table class="table table-bordered table-hover">
+        <thead>
+            <tr>
+                <th>Employees</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var employee in Model)
+            {
+                <tr>
+                    <td>@Html.ActionLink(employee.name, "Calendar", "Employees", new { id = employee.id }, null)</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

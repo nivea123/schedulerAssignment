@@ -1,0 +1,29 @@
+﻿@model IEnumerable<EmployeeSchedulerAssignment.Models.WeekSchedule>
+@{
+    ViewBag.Title = "Calendar";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Employee Schedule Calendar</h2>
+@if (Model == null)
+{
+    <p>We don't have any schedules yet.</p>
+}
+else
+{
+    foreach (var week in Model)
+    {
+        <h3>Calendar Week: @week.week</h3>
+
+        foreach (var employee in week.schedules)
+        {
+            <h4>Employee: @employee.employee_id</h4>
+
+            foreach (var schedule in employee.schedule)
+            {
+                <h5>Day: @schedule</h5>
+            }
+        }
+
+    }
+}
