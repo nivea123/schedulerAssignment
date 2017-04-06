@@ -26,6 +26,14 @@ namespace EmployeeSchedulerAssignment
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap-lumen.css",
                       "~/Content/site.css"));
+
+            // FullCalendar files
+            bundles.Add(new StyleBundle("~/Content/fullcalendarcss").Include(
+                      "~/Content/fullcalendar.css"));
+            bundles.Add(new StyleBundle("~/bundles/fullcalendarjs").Include(
+                      "~/Scripts/moment.min.js",
+                      "~/Scripts/fullcalendar.min.js"));
+
         }
     }
 }

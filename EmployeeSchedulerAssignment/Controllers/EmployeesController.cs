@@ -22,8 +22,8 @@ namespace EmployeeSchedulerAssignment.Controllers
         [Route("employees/id/{id}")]
         public ActionResult Calendar(int id)
         {
-            var employeeSchedule = GenerateSchedule();
-            return View(employeeSchedule);
+            var calendarEvents = GenerateSchedule(id);
+            return View(calendarEvents);
         }
 
 #region Helpers
@@ -37,8 +37,9 @@ namespace EmployeeSchedulerAssignment.Controllers
         ///   they will be scheduled first.
         /// * There are enough employees to cover shift requests
         /// </summary>
-        /// <returns></returns>
-        private IEnumerable<WeekSchedule> GenerateSchedule()
+        /// <param name="id">Employee Id</param>
+        /// <returns>Employee's schedule for month of June 2015</returns>
+        private CalendarScheduleViewModel GenerateSchedule(int id)
         {
             // Do nothing if there are no employees
             var employees = EmployeeScheduleApi.GetEmployees().OrderBy(s => s.name);  // Do this for now
@@ -57,7 +58,7 @@ namespace EmployeeSchedulerAssignment.Controllers
                 return null;
 
             // Assuming there's exactly one row for EMPLOYEES_PER_SHIFT rule
-            // TODO - Loop through shiftRules to find all rules that apply EMPLOYESS_PER_SHIFT 
+            // TODO - Loop through shiftRules to find all rules that apply to EMPLOYESS_PER_SHIFT 
             var shiftRules = EmployeeScheduleApi.GetShiftRules();
 
             // TODO - Data validation checks:  rule_id exists in ruleDefinition list, employee_id exists in employees list, value not negative
@@ -69,7 +70,8 @@ namespace EmployeeSchedulerAssignment.Controllers
             if (!employeePerShiftValue.HasValue)
                 return null;
 
-            // employee_id is optional parameter
+            // employee_id is optional parameter, empty value means ALL employee
+            // TODO - identify employees with specific rule by looping through shiftRule by employee
             int? employeePerShiftEmpId = shiftRule.employee_id;
 
             // Schedule each employee for weeks 23 to 26
@@ -108,10 +110,20 @@ namespace EmployeeSchedulerAssignment.Controllers
 
                 weekSchedules.Add(new WeekSchedule() { week = weekNo, schedules = schedules });
             }
-            
-            // TODO - Write results out to JSON file
+            // TODO - Write results out to JSON file so we are not generating results again
 
-            return weekSchedules;
+            // Return list of weekSchedules filtered by passed in employee 'id'
+            //weekSchedules.RemoveAll(w => w.schedules.Where(e => e.employee_id == id));
+
+            var calendarEvents = new List<CalendarEvent>()
+            {
+                new CalendarEvent(){ title = "Work", start = "2015-06-01" },
+                new CalendarEvent(){ title = "Work", start = "2015-06-08" }
+            };
+
+            var viewModel = new CalendarScheduleViewModel() { employee_name = "Deanne Work MORE!!!", calendarEvents = calendarEvents };
+
+            return viewModel;
         }
 #endregion
 

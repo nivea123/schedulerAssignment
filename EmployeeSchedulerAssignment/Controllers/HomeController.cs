@@ -15,14 +15,14 @@ namespace EmployeeSchedulerAssignment.Controllers
 
         public ActionResult About()
         {
-            ViewBag.Message = "Your application description page.";
+            ViewBag.Message = "Employee Scheduler Assignment";
 
             return View();
         }
 
         public ActionResult Contact()
         {
-            ViewBag.Message = "Your contact page.";
+            ViewBag.Message = "Email:  deanne.mann@gmail.com";
 
             return View();
         }

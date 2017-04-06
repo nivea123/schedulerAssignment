@@ -1,16 +1,43 @@
-﻿@model IEnumerable<EmployeeSchedulerAssignment.Models.WeekSchedule>
+﻿@model EmployeeSchedulerAssignment.ViewModels.CalendarScheduleViewModel
 @{
     ViewBag.Title = "Calendar";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Employee Schedule Calendar</h2>
+@section scripts
+{
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+            // page is now ready, initialize the calendar...
+            var fullCalendarEvents = [];
+            @foreach (var calendarEvent in Model.calendarEvents)
+            {
+                @:fullCalendarEvents.push({ title: '@calendarEvent.title', start: '@calendarEvent.start' });
+            }
+
+            $('#calendar').fullCalendar({
+                            defaultDate: moment('2015-06-01'),
+                            events: fullCalendarEvents
+                            })
+
+        });
+    </script>
+}
+
 @if (Model == null)
 {
     <p>We don't have any schedules yet.</p>
 }
 else
 {
+    <br /><br />
+    <h2>@Model.employee_name</h2>
+    <br />
+
+    <div id='calendar' style="width:80%"></div>
+
+    @*
     foreach (var week in Model)
     {
         <h3>Calendar Week: @week.week</h3>
@@ -26,4 +53,5 @@ else
         }
 
     }
+        *@
 }
