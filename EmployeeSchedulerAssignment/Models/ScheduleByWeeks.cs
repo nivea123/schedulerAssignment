@@ -5,7 +5,7 @@ using System.Web;
 
 namespace EmployeeSchedulerAssignment.Models
 {
-    public class WeekSchedule
+    public class ScheduleByWeeks
     {
         public int week { get; set; }
         public List<EmployeeSchedule> schedules { get; set; }

@@ -139,8 +139,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Models\Week.cs" />
     <Compile Include="ViewModels\CalendarEvent.cs" />
-    <Compile Include="Models\WeekSchedule.cs" />
+    <Compile Include="Models\ScheduleByWeeks.cs" />
     <Compile Include="Services\EmployeeScheduleApi.cs" />
     <Compile Include="App_Start\BundleConfig.cs" />
     <Compile Include="App_Start\FilterConfig.cs" />
