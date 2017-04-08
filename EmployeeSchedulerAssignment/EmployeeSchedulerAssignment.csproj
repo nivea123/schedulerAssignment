@@ -140,6 +140,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Models\Week.cs" />
+    <Compile Include="EmployeeScheduler\Scheduler.cs" />
     <Compile Include="ViewModels\CalendarEvent.cs" />
     <Compile Include="Models\ScheduleByWeeks.cs" />
     <Compile Include="Services\EmployeeScheduleApi.cs" />
