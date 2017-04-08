@@ -8,7 +8,8 @@ namespace EmployeeSchedulerAssignment.ViewModels
 {
     public class CalendarScheduleViewModel
     {
-        public string employee_name { get; set; }
+        public string employeeName { get; set; }
         public List<CalendarEvent> calendarEvents { get; set; }
+        public string errorString { get; set; }
     }
 }

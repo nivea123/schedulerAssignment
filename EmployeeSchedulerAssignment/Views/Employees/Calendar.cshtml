@@ -7,8 +7,8 @@
 @section scripts
 {
     <script type="text/javascript">
-        $(document).ready(function() {
-
+        $(document).ready(function ()
+        {
             // page is now ready, initialize the calendar...
             var fullCalendarEvents = [];
             @foreach (var calendarEvent in Model.calendarEvents)
@@ -17,24 +17,25 @@
             }
 
             $('#calendar').fullCalendar({
-                            defaultDate: moment('2015-06-01'),
-                            events: fullCalendarEvents
-                            })
-
+                defaultDate: moment('2015-06-01'),
+                firstDay: 1,
+                events: fullCalendarEvents
+            })
         });
     </script>
 }
 
-@if (Model == null)
+<br /><br />
+@if (Model == null || (Model != null && Model.calendarEvents == null))
 {
     <p>We don't have any schedules yet.</p>
 }
 else
 {
-    <br /><br />
-    <h2>@Model.employee_name</h2>
+    <h2>@Model.employeeName</h2>
+    <br />
+    <p>@Model.errorString</p>
     <br />
 
     <div id='calendar' style="width:80%"></div>
-     
 }

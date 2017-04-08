@@ -11,6 +11,8 @@ namespace EmployeeSchedulerAssignment.Controllers
 {
     public class EmployeesController : Controller
     {
+        private List<CalendarEvent> calendarEvents = new List<CalendarEvent>();
+
         // GET: /Employees/
         public ActionResult Index()
         {
@@ -43,53 +45,43 @@ namespace EmployeeSchedulerAssignment.Controllers
             var employees = EmployeeScheduleApi.GetEmployees().OrderBy(s => s.name);
             if (employees.Count() == 0)
             {
-                // TODO - add error message to viewModel
-                return null;
+                return new CalendarScheduleViewModel()
+                    { errorString = String.Format("Could not retrieve any employee information.") };
             }
+
             // Feature 1 - EMPLOYEES_PER_SHIFT
             var ruleDefinitions = EmployeeScheduleApi.GetRuleDefinitions();
             var ruleDefinition = ruleDefinitions.Where(r => r.value == "EMPLOYEES_PER_SHIFT").FirstOrDefault();
             if (ruleDefinition == null)
             {
-                // TODO - add error message to viewModel
-                return null;
+                return new CalendarScheduleViewModel()
+                    { errorString = String.Format("Could not retrieve rule definition 'EMPLOYEES_PER_SHIFT' information.") };
             }
-
-            // Return if EMPLOYEE_PER_SHIFT is not used
             int? employeePerShiftId = ruleDefinition.id;
-            if (!employeePerShiftId.HasValue)
-            {
-                // TODO - add error message to viewModel
-                return null;
-            }
 
             // Assuming there's exactly one row for EMPLOYEES_PER_SHIFT rule
             // TODO - Loop through shiftRules to find all rules that apply to EMPLOYESS_PER_SHIFT 
             var shiftRules = EmployeeScheduleApi.GetShiftRules();
-
-            // TODO - Data validation checks:  rule_id exists in ruleDefinition list, employee_id exists in employees list, value not negative
             var shiftRule = shiftRules.Where(s => s.rule_id == employeePerShiftId).FirstOrDefault();
             if (shiftRule == null)
             {
-                // TODO - add error message to viewModel
-                return null;
+                return new CalendarScheduleViewModel()
+                    { errorString = String.Format("EMPLOYEES_PER_SHIFT rule is not configured for any shift rules.") };
             }
-
             int? employeePerShiftValue = shiftRule.value;
-            if (!employeePerShiftValue.HasValue)
-            {
-                // TODO - add error message to viewModel
-                return null;
-            }
 
             // employee_id in shiftRule is an optional parameter, empty value means ALL employee
             // TODO - identify employees with specific rule by looping through shiftRule by employee
             //        create a list that contains if employee should be included in the rule
             int? employeePerShiftEmpId = shiftRule.employee_id;
 
+            // Feature 2 - Account for emplolyee time-off requests
+            var timeOffRequests = EmployeeScheduleApi.GetEmployeeTimeOffRequests();
+
             // Schedule each employee for weeks 23 to 26
             var scheduleByWeeks = new Dictionary<int, List<EmployeeSchedule>>();
             int currentEmpIndex = 0;
+            int totalNumShifts = 0;
             Employee currentEmp = new Employee();
 
             for (int weekNo = 23; weekNo <= 26; weekNo++)
@@ -106,7 +98,19 @@ namespace EmployeeSchedulerAssignment.Controllers
                             daysByEmployeeId.Add(currentEmp.id, new List<int>());
                         }
 
-                        daysByEmployeeId[currentEmp.id].Add(dayNo);
+                        // Check employee time-off request
+                        bool isAvaliable = true;
+                        foreach (var request in timeOffRequests)
+                        {
+                            if ((request.employee_id == currentEmp.id) && (request.week == weekNo) && (request.days.Contains(dayNo)))
+                                isAvaliable = false;
+                        }
+
+                        if (isAvaliable)
+                        {
+                            daysByEmployeeId[currentEmp.id].Add(dayNo);
+                            totalNumShifts++;
+                        }
 
                         currentEmpIndex++;
                         if (currentEmpIndex >= employees.Count())
@@ -122,11 +126,19 @@ namespace EmployeeSchedulerAssignment.Controllers
 
                 scheduleByWeeks.Add(weekNo, schedules);
             }
+
             // TODO - Write results out to JSON file so we are not generating results again
+
+            // Check if there are enough employees available to work 
+            // shift requirements with employee time-off requests
+            int requiredShifts = (int)employeePerShiftValue * 28; // 4 weeks * 7 days
+            string errorString = null;
+
+            if(totalNumShifts < requiredShifts)
+                errorString = String.Format("NOTE:  There are not enough employee to cover required shift of {0} employees per shift", employeePerShiftValue);
 
             // Return list of weekSchedules filtered by passed in employee 'id'
             var weekStartDates = EmployeeScheduleApi.Get2015CalendarWeeks();
-            var calendarEvents = new List<CalendarEvent>();
             DateTime parsedDate;
 
             foreach (var week in scheduleByWeeks)
@@ -144,6 +156,11 @@ namespace EmployeeSchedulerAssignment.Controllers
                             {
                                 calendarEvents.Add(new CalendarEvent() { title = "Work", start = parsedDate.AddDays(day - 1).ToString("yyyy-MM-dd") });
                             }
+                            else
+                            {
+                                return new CalendarScheduleViewModel()
+                                    { errorString = String.Format("Could not parse JSON date.  Expected date format: 'yyyy/MM/dd'.") };
+                            }
                         }
 
                     }
@@ -152,8 +169,9 @@ namespace EmployeeSchedulerAssignment.Controllers
 
             var viewModel = new CalendarScheduleViewModel()
             {
-                employee_name = employees.Where(e => e.id == requestedEmployeeId).FirstOrDefault().name,
-                calendarEvents = calendarEvents
+                employeeName = employees.Where(e => e.id == requestedEmployeeId).FirstOrDefault().name,
+                calendarEvents = calendarEvents,
+                errorString = errorString
             };
 
             return viewModel;
