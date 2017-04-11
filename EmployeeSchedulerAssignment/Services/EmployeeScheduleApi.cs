@@ -86,7 +86,7 @@ namespace EmployeeSchedulerAssignment.Services
             string email = HttpUtility.UrlEncode("deanne.mann@gmail.com");
 
 
-            string url =@"http://interviewtest.replicon.com/submit?name=" + name + "&email=" + email + "&features[0]=1&features[1]=2";
+            string url =@"http://interviewtest.replicon.com/submit?name=" + name + "&email=" + email + "&features[0]=1&features[1]=2&solution=true";
             var request = (HttpWebRequest)WebRequest.Create(url);
             request.ContentType = "application/json";
             request.Method = "POST";
